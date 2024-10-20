@@ -1,14 +1,24 @@
 FROM php:8.2-fpm
+
 RUN apt-get update && apt-get install -y \
-    libfreetype-dev \
-    libjpeg62-turbo-dev \
     libpng-dev \
-    libxml2-dev \
-    libxslt1-dev \
-    libzip-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     libonig-dev \
-    libcurl4-gnutls-dev \
-    libicu-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd intl mbstring mysqli soap xml xsl zip pdo  fileinfo pdo_mysql \
-    && a2enmod rewrite headers
+    libxml2-dev \
+    zip \
+    unzip \
+    curl \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
+
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html/opencart
+
+COPY ./src /var/www/html/opencart
+
+RUN chown -R www-data:www-data /var/www/html/opencart
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
